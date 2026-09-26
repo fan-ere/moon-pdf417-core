@@ -13,13 +13,13 @@ Reed-Solomon 纠错与纠错修复、按附录 Q 的行列规划与行指示符�
 
 ## 尚未验证或需要参赛人补交的条件
 
-- GitHub Actions 是否通过未知。`ci.yml` 存在不等于线上 CI 已跑通；推送后需要
-  在仓库的 Actions 页面确认四个目标的矩阵任务与 lint、CLI 任务的实际结果。
 - 未发布 mooncakes.io，包页面不存在。
 - 是否满足当期章程的全部材料格式（例如作品展示墙、开发历程文章的提交入口）
   需要参赛人按官方通知确认。
 - 本库不包含 ISO/IEC 15438 附录 A 的条空模式表，因此不能独立绘制可扫描图形；
   这一点已在 README 与申报书中明确，不应被理解为"已能生成条码图片"。
+- 本库不实现 ECI，输入按 0..255 码元解释；非 Latin-1 载荷需调用方先经
+  `utf8_bytes` 转换。
 
 ## 仓库与提交状态
 
@@ -27,6 +27,9 @@ Reed-Solomon 纠错与纠错修复、按附录 Q 的行列规划与行指示符�
 - 提交均以参赛人 `fan-ere` 署名，覆盖模块脚手架、类型与常量、Text/Numeric/Byte
   三种压缩、自动模式选择、GF(929) 纠错与修复、布局规划、符号结构、反向解码、
   命令行、测试、文档与 CI。
+- GitHub Actions（run 36227163345）：lint、test(wasm)、test(wasm-gc)、
+  test(js)、test(native)、cli 六个任务全部成功；wasm 任务日志中
+  `Total tests: 57, passed: 57, failed: 0.`，Linux 上 `moonc v0.10.14+7d59c7ec9`。
 
 ## 已核对证据
 
