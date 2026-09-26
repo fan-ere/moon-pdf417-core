@@ -181,4 +181,4 @@ the verification result.
 * Macro PDF417 and structured append.
 
 Publishing to mooncakes.io has not been done; the repository is the record of
-what exists today.
+what exists today and it lives at <https://github.com/fan-ere/moon-pdf417-core>.

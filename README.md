@@ -1,5 +1,9 @@
 # Moon PDF417 Core
 
+[![CI](https://github.com/fan-ere/moon-pdf417-core/actions/workflows/ci.yml/badge.svg)](https://github.com/fan-ere/moon-pdf417-core/actions/workflows/ci.yml)
+
+Repository: <https://github.com/fan-ere/moon-pdf417-core>
+
 A dependency-free MoonBit library for the **codeword layer** of PDF417: the
 part between "the user has a message" and "a renderer has codewords".
 
