@@ -19,12 +19,55 @@ pub(all) enum Compaction {
 }
 
 ///|
+pub impl Eq for Compaction with fn equal(self : Compaction, other : Compaction) -> Bool {
+  match (self, other) {
+    (Text, Text) => true
+    (Numeric, Numeric) => true
+    (Byte, Byte) => true
+    (Auto, Auto) => true
+    _ => false
+  }
+}
+
+///|
+/// Keep `Eq` usable by callers without promoting its methods.
+pub extend Compaction with Eq::{not_equal, equal}
+
+///|
 /// Text Compaction sub-mode, as defined by ISO/IEC 15438 4.4.2.
 pub(all) enum TextSubmode {
   Alpha
   Lower
   Mixed
   Punctuation
+}
+
+///|
+pub impl Eq for TextSubmode with fn equal(
+  self : TextSubmode,
+  other : TextSubmode,
+) -> Bool {
+  match (self, other) {
+    (Alpha, Alpha) => true
+    (Lower, Lower) => true
+    (Mixed, Mixed) => true
+    (Punctuation, Punctuation) => true
+    _ => false
+  }
+}
+
+///|
+pub extend TextSubmode with Eq::{not_equal, equal}
+
+///|
+/// Debug rendering of a text sub-mode, used by tests and diagnostics.
+pub fn TextSubmode::name(self : TextSubmode) -> String {
+  match self {
+    Alpha => "Alpha"
+    Lower => "Lower"
+    Mixed => "Mixed"
+    Punctuation => "Punctuation"
+  }
 }
 
 ///|

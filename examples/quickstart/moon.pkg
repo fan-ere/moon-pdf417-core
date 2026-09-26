@@ -1,0 +1,5 @@
+import {
+  "fan-ere/moon-pdf417-core" @pdf417,
+}
+
+pkgtype(kind: "executable")

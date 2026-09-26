@@ -107,8 +107,12 @@ pub fn text_automaton(
           values.push(if code == 32 { 26 } else { code - 65 })
           index += 1
         } else if is_alpha_lower(code) {
+          // 27 shifts to Lower for the *same* character, so the value of the
+          // current character is emitted here, not on the next iteration.
           submode = Lower
           values.push(tc_alpha_to_lower)
+          values.push(if code == 32 { 26 } else { code - 97 })
+          index += 1
         } else if is_mixed(code) {
           submode = Mixed
           values.push(tc_alpha_to_mixed)
@@ -121,11 +125,9 @@ pub fn text_automaton(
         }
       Lower =>
         if is_alpha_lower(code) {
+          // In Lower sub-mode 27 shifts to Alpha instead of emitting 26, so a
+          // space is encoded arithmetically here.
           values.push(if code == 32 { 26 } else { code - 97 })
-          index += 1
-        } else if is_alpha_upper(code) {
-          values.push(tc_lower_to_alpha)
-          values.push(code - 65)
           index += 1
         } else if is_mixed(code) {
           submode = Mixed
@@ -134,6 +136,12 @@ pub fn text_automaton(
           values.push(tc_lower_to_punct)
           values.push(punctuation_value[code])
           index += 1
+        } else if is_alpha_upper(code) {
+          // In Lower sub-mode 27 is the shift to Alpha, so lowercase "a".."z"
+          // and the space are already covered above; only a genuine shift
+          // lands here.
+          submode = Alpha
+          values.push(tc_lower_to_alpha)
         } else {
           raise UnrepresentableChar(code)
         }
