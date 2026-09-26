@@ -1,0 +1,23 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "niuniu513-ask/moon-pdf417-core"
+
+// Values
+pub fn encode_bytes(Array[Int]) -> Array[Int]?
+
+pub fn encode_numeric(String) -> Array[Int]?
+
+pub fn encode_uppercase(String) -> Array[Int]?
+
+pub fn error_correction(Array[Int], Int) -> Array[Int]?
+
+pub fn finalize_codewords(Array[Int], Int, Int) -> Array[Int]?
+
+pub fn valid_data_codewords(Array[Int]) -> Bool
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits

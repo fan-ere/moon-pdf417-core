@@ -1,0 +1,7 @@
+// The library package only uses the MoonBit core prelude and `core/debug`
+// for the `Debug` implementation of `EncodeError`, so it compiles for
+// native, wasm, wasm-gc and js targets without external dependencies.
+
+import {
+  "moonbitlang/core/debug",
+}
