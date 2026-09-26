@@ -221,22 +221,21 @@ pub fn berlekamp_massey(sequence : Array[Int]) -> Array[Int] {
   let mut previous : Array[Int] = [1]
   let mut shift = 1
   let mut last_discrepancy = 1
+  let mut degree = 0
   for index in 0..<sequence.length() {
     let mut discrepancy = sequence[index]
     let mut offset = 1
-    while offset < locator.length() {
-      if index >= offset {
-        discrepancy = modulo929(
-          discrepancy + locator[offset] * sequence[index - offset],
-        )
-      }
+    while offset <= degree {
+      discrepancy = modulo929(
+        discrepancy + locator[offset] * sequence[index - offset],
+      )
       offset += 1
     }
     if discrepancy == 0 {
       shift += 1
       continue
     }
-    if locator.length() <= previous.length() + shift - 1 {
+    if 2 * degree <= index {
       let snapshot = locator
       let factor = discrepancy * inverse929(last_discrepancy) % 929
       let next : Array[Int] = Array::make(previous.length() + shift, 0)
@@ -251,8 +250,22 @@ pub fn berlekamp_massey(sequence : Array[Int]) -> Array[Int] {
       locator = next
       previous = snapshot
       last_discrepancy = discrepancy
+      degree = index + 1 - degree
       shift = 1
     } else {
+      let factor = discrepancy * inverse929(last_discrepancy) % 929
+      let next : Array[Int] = Array::make(locator.length(), 0)
+      for position in 0..<locator.length() {
+        next[position] = locator[position]
+      }
+      for position in 0..<previous.length() {
+        if position + shift < next.length() {
+          next[position + shift] = modulo929(
+            next[position + shift] - factor * previous[position],
+          )
+        }
+      }
+      locator = next
       shift += 1
     }
   }
@@ -300,7 +313,8 @@ fn chien_search(
 
 ///|
 /// Forney style magnitude recovery: solve
-/// `S[j] = sum_k magnitude_k * X_k^j` for the known error positions.
+/// `S[j] = sum_k magnitude_k * X_k^(j+1)` for the known error positions,
+/// which is the linear system the syndrome evaluator produces.
 fn solve_magnitudes(
   observed : Array[Int],
   positions : Array[Int],
@@ -316,7 +330,7 @@ fn solve_magnitudes(
     let entries : Array[Int] = []
     for column in 0..<count {
       entries.push(
-        pow_mod929(error_locator_of(positions[column], length), row),
+        pow_mod929(error_locator_of(positions[column], length), row + 1),
       )
     }
     matrix.push(entries)
