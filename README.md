@@ -1,37 +1,109 @@
 # Moon PDF417 Core
 
-A pure MoonBit **codeword-layer** library for PDF417. It encodes uppercase text and spaces in Alpha submode, bytes in 901/924 mode, and decimal strings in numeric mode. It generates Reed-Solomon parity over GF(929), plans rows from a chosen column count, inserts padding and updates the length descriptor.
+A dependency-free MoonBit library for the **codeword layer** of PDF417: the
+part between "the user has a message" and "a renderer has codewords".
 
-## Use
+It implements high level encoding (Text, Byte and Numeric compaction plus the
+automatic mode selector), GF(929) Reed-Solomon error correction, symbol layout
+planning, row indicators, and the inverse decoders that make every generated
+symbol verifiable.
 
 ```moonbit
-let text = encode_uppercase("HELLO WORLD")
-let binary = encode_bytes([1, 2, 3, 4, 5, 6])
-let digits = encode_numeric("123456789")
-match text {
-  Some(data) => {
-    let full = finalize_codewords(data, 2, 4)
-    // Pass `full` to a PDF417 row-pattern renderer.
-  }
-  None => ()
+let codes : Array[Int] = []
+for character in "HELLO WORLD 1234567890123".iter() {
+  codes.push(character.to_int())
 }
+let high = @pdf417.encode_high_level(codes)          // data codewords
+let symbol = @pdf417.finalize(high.codewords, 2, 4)  // + descriptor, pad, parity
+@pdf417.verify_symbol(symbol)                        // true
 ```
 
-`encode_uppercase` rejects unsupported characters; `encode_numeric` requires digits. `finalize_codewords` rejects invalid levels (outside 0-8), columns (outside 1-30) and impossible capacities. Output contains data, padding and correction codewords. **It is not a scannable symbol:** row indicators, bar/space patterns, start/stop patterns and graphic rendering are outside this package. Mixed/punctuation text optimization is also not supported.
+## What it does
+
+| Area | API |
+| --- | --- |
+| Text Compaction | `encode_text`, `encode_text_segment`, `decode_text`, `text_automaton` |
+| Numeric Compaction | `encode_numeric`, `decimal_chunk_to_base900`, `base900_to_decimal`, `decode_numeric` |
+| Byte Compaction | `encode_byte`, `bytes_to_base900`, `base900_to_bytes`, `decode_byte` |
+| Automatic mode selection | `encode_high_level`, `consecutive_digits`, `consecutive_text`, `consecutive_binary` |
+| Error correction | `error_correction`, `generator_polynomial`, `syndromes`, `correct_errors` |
+| Layout | `finalize`, `rows_for`, `pad_codewords`, `plan_columns`, `data_capacity` |
+| Structure | `start_pattern`, `stop_pattern`, `left_row_indicator`, `right_row_indicator`, `symbol_rows`, `symbol_modules` |
+| Verification | `verify_symbol`, `is_error_free`, `round_trip_matches`, `decode_high_level` |
+
+### Scope
+
+This is a **codeword layer** library. It does **not** contain the ISO/IEC
+15438 annex A table of 928 bar/space patterns per cluster, so it does not draw
+a scannable symbol by itself. A renderer supplies the pattern data and uses
+`symbol_rows`, `symbol_modules` and the start/stop patterns from here to place
+the codewords.
+
+It also does **not** implement ECI, so input is interpreted as an array of code
+units in `0..255`. `utf8_bytes` converts a MoonBit string to UTF-8 byte values
+for callers that want non-Latin-1 payloads; pass the result to byte compaction
+or to the automatic selector.
 
 ## Install and reproduce
 
-Install the [MoonBit toolchain](https://www.moonbitlang.com/download/) and confirm that `moon version --all` works. Run these commands from this project's root directory:
+Install the [MoonBit toolchain](https://www.moonbitlang.com/download/) and make
+sure `moon version --all` works. Then, from the repository root:
 
 ```sh
 moon check --deny-warn --target all
 moon build --target wasm
 moon test --deny-warn --target wasm
-moon run --target wasm examples/demo
+moon test --deny-warn --target wasm-gc
+moon test --deny-warn --target js
+moon run examples/quickstart --target wasm
 ```
 
-Tests include a numeric reference vector and level-zero parity vector, along with capacity and input boundaries. CI defines check, build, and test on Linux. See [PROJECT_PROPOSAL.md](PROJECT_PROPOSAL.md) for the September contest proposal.
+`examples/quickstart` prints the data codewords, the padded and parity-corrected
+codeword sequence and the verification result, so a successful run is the
+shortest reproducibility check.
 
-## Scope and source
+## Command line
 
-This package serves barcode renderers and codeword compatibility tools. GitHub searches `moonbit PDF417`, `moonbit barcode417` and Mooncakes search `pdf417` found no MoonBit equivalent on 2026-09-24; this is not a universal guarantee. Algorithms follow PDF417's public principles; the parity vector was compared with [ZXing](https://github.com/zxing/zxing) (Apache-2.0), without copying code or tables. MIT license.
+```sh
+moon run cmd/main --target native -- encode --data "HELLO WORLD 1234567890123" --level 2 --columns 4
+moon run cmd/main --target native -- inspect --data "HELLO WORLD"
+moon run cmd/main --target native -- capacity --level 2
+moon run cmd/main --target native -- structure --columns 4 --rows 6 --level 2
+```
+
+`--codes 72,69,76,76,79` feeds raw code units instead of text. The CLI works on
+every target; the examples above use `native` because it needs no runtime.
+
+## Correctness evidence
+
+* Text Compaction vectors: `"AB" -> [1]`, `"ABCD" -> [1, 63]`,
+  `"HELLO" -> [214, 341, 449]`, `"]_" -> [876, 877]`.
+* Numeric Compaction vector: `"1234" -> [12, 434]` with the leading `1` prefix
+  kept, so leading zeros survive.
+* Reed-Solomon reference vectors: level 0 over `[3, 1, 2]` gives
+  `[335, 565]`; level 2 gives `[791, 65, 893, 586, 381, 161, 381, 304]`; the
+  generator polynomials equal annex F.
+* Error correction is tested end to end: two corrupted codewords in a level 3
+  symbol are located with Berlekamp-Massey and repaired, and erasures double
+  the repair budget.
+* The suite then covers the three compactions, the mode selector, the decoder,
+  the parity block, the layout rules and the row indicator formulas; run
+  `moon test --deny-warn --target wasm` to see the exact count.
+
+The tests do not prove that a third party decoder reads our symbols, and CI
+being green is not proof that a scanner works: the bar/space patterns are out
+of scope here. See [docs/SOURCES.md](docs/SOURCES.md) for what was compared
+against which reference.
+
+## Documentation
+
+* [申报书.md](申报书.md) — one page project proposal for the contest.
+* [docs/PARTICIPATION.md](docs/PARTICIPATION.md) — applicant and repository ownership.
+* [docs/SOURCES.md](docs/SOURCES.md) — specifications, references and licenses.
+* [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) — development log and design decisions.
+* [docs/OSC2026_SELF_REVIEW.md](docs/OSC2026_SELF_REVIEW.md) — local self review.
+* [AGENTS.md](AGENTS.md) — conventions for agents and contributors.
+
+## License
+
+MIT, see [LICENSE](LICENSE).

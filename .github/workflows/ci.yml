@@ -1,0 +1,73 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [wasm, wasm-gc, js, native]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - name: Install MoonBit
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+      - name: Toolchain versions
+        run: |
+          moon version
+          moon version --all
+      - name: Check
+        run: moon check --deny-warn --target ${{ matrix.target }}
+      - name: Build
+        run: moon build --target ${{ matrix.target }}
+      - name: Test
+        run: moon test --deny-warn --target ${{ matrix.target }}
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - name: Install MoonBit
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+      - name: Formatting
+        run: |
+          moon fmt
+          git diff --exit-code
+      - name: Generated interface
+        run: |
+          moon info
+          git diff --exit-code
+
+  cli:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - name: Install MoonBit
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+      - name: Quickstart example
+        run: moon run examples/quickstart --target wasm
+      - name: CLI smoke test
+        run: |
+          moon run cmd/main --target native -- encode --data "HELLO WORLD 1234567890123" --level 2 --columns 4
+          moon run cmd/main --target native -- inspect --data "HELLO WORLD"
+          moon run cmd/main --target native -- capacity --level 2
+          moon run cmd/main --target native -- structure --columns 4 --rows 6 --level 2
