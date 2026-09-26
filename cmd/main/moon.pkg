@@ -1,0 +1,6 @@
+import {
+  "fan-ere/moon-pdf417-core",
+  "moonbitlang/core/env",
+}
+
+pkgtype(kind: "executable")

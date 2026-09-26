@@ -29,7 +29,11 @@ pub fn plan_rows(
 
 ///|
 /// Rows required with the default three row minimum.
-pub fn rows_for(source_codewords : Int, ec_codewords : Int, columns : Int) -> Int {
+pub fn rows_for(
+  source_codewords : Int,
+  ec_codewords : Int,
+  columns : Int,
+) -> Int {
   plan_rows(source_codewords, ec_codewords, columns, min_rows)
 }
 
@@ -147,14 +151,7 @@ pub fn finalize(
   for word in parity {
     codewords.push(word)
   }
-  {
-    codewords,
-    columns,
-    rows,
-    ec_level: level,
-    data_count,
-    pad_count: pad,
-  }
+  { codewords, columns, rows, ec_level: level, data_count, pad_count: pad, }
 }
 
 ///|

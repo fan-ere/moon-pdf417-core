@@ -30,7 +30,7 @@ priv struct HighLevelBuilder {
 
 ///|
 fn HighLevelBuilder::new() -> HighLevelBuilder {
-  { codewords: [], modes: [], segments: [] }
+  { codewords: [], modes: [], segments: [], }
 }
 
 ///|
@@ -119,8 +119,9 @@ pub fn consecutive_binary(input : Array[Int], start : Int) -> Int {
   let mut index = start
   while index < length {
     let mut numeric = 0
-    while numeric < 13 && index + numeric < length &&
-      is_digit(input[index + numeric]) {
+    while numeric < 13 &&
+          index + numeric < length &&
+          is_digit(input[index + numeric]) {
       numeric += 1
     }
     if numeric >= 13 {
@@ -226,7 +227,9 @@ pub fn encode_high_level(input : Array[Int]) -> HighLevel raise EncodeError {
         }
         index
       }
-      let encoded = try encode_text_segment(input, position, text_run, submode) catch {
+      let encoded = try
+        encode_text_segment(input, position, text_run, submode)
+      catch {
         _ => ([], Alpha)
       } noraise {
         value => value
@@ -245,17 +248,16 @@ pub fn encode_high_level(input : Array[Int]) -> HighLevel raise EncodeError {
     let segment = builder.modes.length()
     builder.modes.push(Byte)
     in_text_mode = push_byte_run(
-      builder,
-      input,
-      position,
-      binary_run,
-      in_text_mode,
-      segment,
+      builder, input, position, binary_run, in_text_mode, segment,
     )
     submode = Alpha
     position += binary_run
   }
-  { codewords: builder.codewords, modes: builder.modes, segments: builder.segments }
+  {
+    codewords: builder.codewords,
+    modes: builder.modes,
+    segments: builder.segments,
+  }
 }
 
 ///|

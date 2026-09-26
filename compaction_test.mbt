@@ -23,8 +23,8 @@ test "numeric and decimal conversions round trip" {
     [9, 9],
     [1, 2, 3, 4, 5, 6, 7, 8, 9],
     [
-      1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
-      0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4,
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5,
+      6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4,
     ],
   ]
   for chunk in chunks {
@@ -64,27 +64,23 @@ test "numeric codeword count follows the chunk encoder" {
 
 ///|
 test "byte groups follow the base 900 conversion" {
-  assert_eq(
-    @moon-pdf417-core.bytes_to_base900([1, 2, 3, 4, 5, 6]),
-    [1, 620, 89, 74, 846],
-  )
-  assert_eq(
-    @moon-pdf417-core.base900_to_bytes([1, 620, 89, 74, 846]),
-    [1, 2, 3, 4, 5, 6],
-  )
+  assert_eq(@moon-pdf417-core.bytes_to_base900([1, 2, 3, 4, 5, 6]), [
+    1, 620, 89, 74, 846,
+  ])
+  assert_eq(@moon-pdf417-core.base900_to_bytes([1, 620, 89, 74, 846]), [
+    1, 2, 3, 4, 5, 6,
+  ])
 }
 
 ///|
 test "byte compaction emits groups then a literal tail" {
-  assert_eq(
-    @moon-pdf417-core.encode_byte([1, 2, 3, 4, 5, 6]),
-    [1, 620, 89, 74, 846],
-  )
+  assert_eq(@moon-pdf417-core.encode_byte([1, 2, 3, 4, 5, 6]), [
+    1, 620, 89, 74, 846,
+  ])
   assert_eq(@moon-pdf417-core.encode_byte([1, 2, 3]), [1, 2, 3])
-  assert_eq(
-    @moon-pdf417-core.encode_byte([1, 2, 3, 4, 5, 6, 255]),
-    [1, 620, 89, 74, 846, 255],
-  )
+  assert_eq(@moon-pdf417-core.encode_byte([1, 2, 3, 4, 5, 6, 255]), [
+    1, 620, 89, 74, 846, 255,
+  ])
 }
 
 ///|

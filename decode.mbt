@@ -247,10 +247,10 @@ pub fn decode_high_level(words : Array[Int]) -> Array[Int] raise EncodeError {
     if mode == Text {
       let body : Array[Int] = []
       while index < words.length() &&
-        words[index] != latch_text &&
-        words[index] != latch_numeric &&
-        words[index] != latch_byte &&
-        words[index] != latch_byte_padded {
+            words[index] != latch_text &&
+            words[index] != latch_numeric &&
+            words[index] != latch_byte &&
+            words[index] != latch_byte_padded {
         body.push(words[index])
         index += 1
       }
@@ -262,10 +262,10 @@ pub fn decode_high_level(words : Array[Int]) -> Array[Int] raise EncodeError {
     if mode == Numeric {
       let body : Array[Int] = []
       while index < words.length() &&
-        words[index] != latch_text &&
-        words[index] != latch_numeric &&
-        words[index] != latch_byte &&
-        words[index] != latch_byte_padded {
+            words[index] != latch_text &&
+            words[index] != latch_numeric &&
+            words[index] != latch_byte &&
+            words[index] != latch_byte_padded {
         body.push(words[index])
         index += 1
       }

@@ -293,7 +293,8 @@ fn chien_search(
 ) -> Array[Int] {
   let positions : Array[Int] = []
   for position in 0..<length {
-    if eval_locator(locator, inverse929(error_locator_of(position, length))) == 0 {
+    if eval_locator(locator, inverse929(error_locator_of(position, length))) ==
+      0 {
       positions.push(position)
     }
   }

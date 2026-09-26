@@ -33,7 +33,10 @@ pub fn is_punctuation(code : Int) -> Bool {
 ///|
 /// `true` if Text Compaction can represent `code` at all.
 pub fn is_text_code(code : Int) -> Bool {
-  is_alpha_upper(code) || is_alpha_lower(code) || is_mixed(code) || is_punctuation(code)
+  is_alpha_upper(code) ||
+  is_alpha_lower(code) ||
+  is_mixed(code) ||
+  is_punctuation(code)
 }
 
 ///|

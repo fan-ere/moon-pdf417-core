@@ -1,0 +1,14 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "fan-ere/moon-pdf417-core/cmd/main"
+
+// Values
+
+// Errors
+type CliError
+
+// Types and methods
+type Options
+
+// Type aliases
+
+// Traits

@@ -90,9 +90,7 @@ pub fn row_codewords(
   rows : Int,
   ec_level : Int,
 ) -> Array[Int] {
-  let result : Array[Int] = [
-    left_row_indicator(row, rows, columns, ec_level),
-  ]
+  let result : Array[Int] = [left_row_indicator(row, rows, columns, ec_level)]
   let base = row * columns
   for offset in 0..<columns {
     let index = base + offset
@@ -197,7 +195,10 @@ pub fn geometry_of(symbol : Symbol) -> Geometry {
 /// Total codeword capacity of a `columns` by `rows` data area, including the
 /// row indicators of every row.
 pub fn symbol_codeword_capacity(columns : Int, rows : Int) -> Int {
-  if columns < min_columns || columns > max_columns || rows < min_rows || rows > max_rows {
+  if columns < min_columns ||
+    columns > max_columns ||
+    rows < min_rows ||
+    rows > max_rows {
     return 0
   }
   columns * rows

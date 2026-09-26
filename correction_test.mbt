@@ -3,14 +3,8 @@
 
 ///|
 test "generator polynomial matches the standard coefficients" {
-  assert_eq(
-    @moon-pdf417-core.generator_polynomial(2),
-    [1, 917, 27],
-  )
-  assert_eq(
-    @moon-pdf417-core.generator_polynomial(4),
-    [1, 809, 723, 568, 522],
-  )
+  assert_eq(@moon-pdf417-core.generator_polynomial(2), [1, 917, 27])
+  assert_eq(@moon-pdf417-core.generator_polynomial(4), [1, 809, 723, 568, 522])
   // Constant term first, as annex F lists them.
   let degree_eight = @moon-pdf417-core.generator_polynomial(8)
   assert_eq(degree_eight.length(), 9)
@@ -20,18 +14,14 @@ test "generator polynomial matches the standard coefficients" {
 
 ///|
 test "parity matches the level zero reference vector" {
-  assert_eq(
-    @moon-pdf417-core.error_correction([3, 1, 2], 0),
-    [335, 565],
-  )
+  assert_eq(@moon-pdf417-core.error_correction([3, 1, 2], 0), [335, 565])
 }
 
 ///|
 test "parity matches the level two reference vector" {
-  assert_eq(
-    @moon-pdf417-core.error_correction([3, 1, 2], 2),
-    [791, 65, 893, 586, 381, 161, 381, 304],
-  )
+  assert_eq(@moon-pdf417-core.error_correction([3, 1, 2], 2), [
+    791, 65, 893, 586, 381, 161, 381, 304,
+  ])
 }
 
 ///|
@@ -124,11 +114,9 @@ test "erasures double the repair budget" {
   damaged[1] = (damaged[1] + 300) % 929
   damaged[3] = (damaged[3] + 400) % 929
   damaged[5] = (damaged[5] + 500) % 929
-  let repaired = @moon-pdf417-core.correct_errors_opt(
-    damaged,
-    parity_count,
-    [0, 1],
-  )
+  let repaired = @moon-pdf417-core.correct_errors_opt(damaged, parity_count, [
+    0, 1,
+  ])
   match repaired {
     Some(value) => assert_eq(value.0, expected)
     None => abort("expected the erasures to make the repair possible")
@@ -212,4 +200,3 @@ test "data capacity grows with the column count" {
   assert_true(wide > narrow)
   assert_true(narrow > 0)
 }
-

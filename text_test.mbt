@@ -114,19 +114,8 @@ test "empty input is reported" {
 ///|
 test "text decoding inverts encoding" {
   let samples : Array[String] = [
-    "A",
-    "AB",
-    "HELLO WORLD",
-    "Hello World",
-    "a",
-    "ab",
-    "12",
-    "!",
-    "]_",
-    "Hello, World!",
-    "A1B2",
-    "PDF417 TEST",
-    "?;",
+    "A", "AB", "HELLO WORLD", "Hello World", "a", "ab", "12", "!", "]_", "Hello, World!",
+    "A1B2", "PDF417 TEST", "?;",
   ]
   for sample in samples {
     let words = expect_words(sample)
@@ -136,7 +125,9 @@ test "text decoding inverts encoding" {
 
 ///|
 test "segment encoding reports the ending sub-mode" {
-  let encoded = @moon-pdf417-core.encode_text_segment(ascii_codes("abc"), 0, 3, Alpha) catch {
+  let encoded = try
+    @moon-pdf417-core.encode_text_segment(ascii_codes("abc"), 0, 3, Alpha)
+  catch {
     error => fail("unexpected failure: " + repr(error))
   } noraise {
     value => value

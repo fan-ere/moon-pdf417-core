@@ -1,22 +1,303 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "niuniu513-ask/moon-pdf417-core"
+package "fan-ere/moon-pdf417-core"
+
+import {
+  "moonbitlang/core/debug",
+}
 
 // Values
-pub fn encode_bytes(Array[Int]) -> Array[Int]?
+pub fn base900_to_bytes(Array[Int]) -> Array[Int] raise EncodeError
 
-pub fn encode_numeric(String) -> Array[Int]?
+pub fn base900_to_decimal(Array[Int]) -> Array[Int]
 
-pub fn encode_uppercase(String) -> Array[Int]?
+pub fn berlekamp_massey(Array[Int]) -> Array[Int]
 
-pub fn error_correction(Array[Int], Int) -> Array[Int]?
+pub fn byte_capacity(Int) -> Int
 
-pub fn finalize_codewords(Array[Int], Int, Int) -> Array[Int]?
+pub fn byte_count_codewords(Int) -> Int
 
-pub fn valid_data_codewords(Array[Int]) -> Bool
+pub let byte_group_codewords : Int
+
+pub let byte_group_size : Int
+
+pub fn bytes_to_base900(Array[Int]) -> Array[Int] raise EncodeError
+
+pub fn consecutive_binary(Array[Int], Int) -> Int
+
+pub fn consecutive_digits(Array[Int], Int) -> Int
+
+pub fn consecutive_text(Array[Int], Int) -> Int
+
+pub fn correct_errors(Array[Int], Int, Array[Int]) -> (Array[Int], Array[Int]) raise EncodeError
+
+pub fn correct_errors_opt(Array[Int], Int, Array[Int]) -> (Array[Int], Array[Int])?
+
+pub fn data_capacity(Int, Int) -> Int
+
+pub fn decimal_chunk_to_base900(Array[Int]) -> Array[Int]
+
+pub fn decode_byte(Array[Int]) -> Array[Int] raise EncodeError
+
+pub fn decode_high_level(Array[Int]) -> Array[Int] raise EncodeError
+
+pub fn decode_high_level_opt(Array[Int]) -> Array[Int]?
+
+pub fn decode_numeric(Array[Int]) -> Array[Int] raise EncodeError
+
+pub fn decode_text(Array[Int]) -> Array[Int] raise EncodeError
+
+pub fn decode_text_values(Array[Int]) -> Array[Int] raise EncodeError
+
+pub fn encode_byte(Array[Int]) -> Array[Int] raise EncodeError
+
+pub fn encode_byte_segment(Array[Int], Int, Int) -> Array[Int] raise EncodeError
+
+pub fn encode_bytes_only(Array[Int]) -> Array[Int] raise EncodeError
+
+pub fn encode_high_level(Array[Int]) -> HighLevel raise EncodeError
+
+pub fn encode_high_level_opt(Array[Int]) -> HighLevel?
+
+pub fn encode_numeric(Array[Int]) -> Array[Int] raise EncodeError
+
+pub fn encode_numeric_only(Array[Int]) -> Array[Int] raise EncodeError
+
+pub fn encode_numeric_opt(Array[Int]) -> Array[Int]?
+
+pub fn encode_numeric_segment(Array[Int], Int, Int) -> Array[Int] raise EncodeError
+
+pub fn encode_text(Array[Int]) -> Array[Int] raise EncodeError
+
+pub fn encode_text_from(Array[Int], TextSubmode) -> Array[Int] raise EncodeError
+
+pub fn encode_text_only(Array[Int]) -> Array[Int] raise EncodeError
+
+pub fn encode_text_opt(Array[Int]) -> Array[Int]?
+
+pub fn encode_text_segment(Array[Int], Int, Int, TextSubmode) -> (Array[Int], TextSubmode) raise EncodeError
+
+pub fn error_correction(Array[Int], Int) -> Array[Int] raise EncodeError
+
+pub fn error_correction_codeword_count(Int) -> Int
+
+pub fn error_locator_of(Int, Int) -> Int
+
+pub fn finalize(Array[Int], Int, Int) -> Symbol raise EncodeError
+
+pub fn finalize_opt(Array[Int], Int, Int) -> Symbol?
+
+pub fn generator_polynomial(Int) -> Array[Int] raise EncodeError
+
+pub fn geometry_of(Symbol) -> Geometry
+
+pub fn inverse929(Int) -> Int
+
+pub fn is_alpha_lower(Int) -> Bool
+
+pub fn is_alpha_upper(Int) -> Bool
+
+pub fn is_byte_group_multiple(Int) -> Bool
+
+pub fn is_digit(Int) -> Bool
+
+pub fn is_error_free(Array[Int], Int) -> Bool
+
+pub fn is_mixed(Int) -> Bool
+
+pub fn is_numeric_input(Array[Int]) -> Bool
+
+pub fn is_punctuation(Int) -> Bool
+
+pub fn is_structurally_valid(Array[Int]) -> Bool
+
+pub fn is_text_byte(Int) -> Bool
+
+pub fn is_text_code(Int) -> Bool
+
+pub fn is_text_input(Array[Int]) -> Bool
+
+pub fn is_valid_layout(Int, Int) -> Bool
+
+pub fn is_valid_pattern(Int, Int) -> Bool
+
+pub let latch_byte : Int
+
+pub let latch_byte_padded : Int
+
+pub let latch_numeric : Int
+
+pub let latch_text : Int
+
+pub fn left_row_indicator(Int, Int, Int, Int) -> Int
+
+pub let max_byte_value : Int
+
+pub let max_codewords : Int
+
+pub let max_columns : Int
+
+pub let max_error_correction_level : Int
+
+pub let max_rows : Int
+
+pub let min_columns : Int
+
+pub let min_rows : Int
+
+pub let mixed_char : Array[Int]
+
+pub let mixed_value : Array[Int]
+
+pub let numeric_chunk_size : Int
+
+pub fn numeric_codewords_for(Int) -> Int
+
+pub let pad_codeword : Int
+
+pub fn pad_codewords(Int, Int, Int, Int) -> Int?
+
+pub fn pattern_widths(Int, Int) -> Array[Int]
+
+pub fn plan_columns(Int, Int, Int, Int, Int, Int) -> (Int, Int)?
+
+pub fn plan_rows(Int, Int, Int, Int) -> Int
+
+pub fn pow_mod929(Int, Int) -> Int
+
+pub let punctuation_char : Array[Int]
+
+pub let punctuation_value : Array[Int]
+
+pub fn recommended_level(Int) -> Int?
+
+pub fn right_row_indicator(Int, Int, Int, Int) -> Int
+
+pub fn round_trip_matches(Array[Int], Array[Int]) -> Bool
+
+pub fn row_cluster(Int) -> Int
+
+pub fn row_codeword_count(Int) -> Int
+
+pub fn row_codewords(Array[Int], Int, Int, Int, Int) -> Array[Int]
+
+pub fn rows_for(Int, Int, Int) -> Int
+
+pub let shift_byte : Int
+
+pub fn smallest_symbol(Int, Int) -> (Int, Int)?
+
+pub let start_pattern : Int
+
+pub let start_pattern_modules : Int
+
+pub let stop_pattern : Int
+
+pub let stop_pattern_modules : Int
+
+pub fn symbol_codeword_capacity(Int, Int) -> Int
+
+pub fn symbol_modules(Int) -> Int
+
+pub fn symbol_rows(Symbol) -> Array[Array[Int]]?
+
+pub fn syndrome_weight(Array[Int], Int) -> Int
+
+pub fn syndromes(Array[Int], Int) -> Array[Int]
+
+pub let tc_alpha_to_lower : Int
+
+pub let tc_alpha_to_mixed : Int
+
+pub let tc_alpha_to_punct : Int
+
+pub let tc_lower_to_alpha : Int
+
+pub let tc_lower_to_mixed : Int
+
+pub let tc_lower_to_punct : Int
+
+pub let tc_mixed_to_alpha : Int
+
+pub let tc_mixed_to_lower : Int
+
+pub let tc_mixed_to_punct_latch : Int
+
+pub let tc_mixed_to_punct_shift : Int
+
+pub let tc_punct_to_alpha : Int
+
+pub let tc_text_pad : Int
+
+pub fn text_automaton(Array[Int], Int, Int, TextSubmode) -> (Array[Int], TextSubmode) raise EncodeError
+
+pub fn unpack_text_values(Array[Int]) -> Array[Int]
+
+pub fn utf8_bytes(String) -> Array[Int]
+
+pub fn verify_symbol(Symbol) -> Bool
 
 // Errors
+pub suberror EncodeError {
+  EmptyInput
+  UnrepresentableChar(Int)
+  TooManyCodewords(Int)
+  InvalidErrorCorrectionLevel(Int)
+  InvalidColumnCount(Int)
+  LayoutImpossible(Int, Int)
+  TooManyErasures(Int, Int)
+} derive(@debug.Debug)
+pub fn EncodeError::to_repr(Self) -> @debug.Repr
 
 // Types and methods
+pub(all) enum Compaction {
+  Text
+  Numeric
+  Byte
+  Auto
+}
+pub fn Compaction::equal(Self, Self) -> Bool
+pub fn Compaction::not_equal(Self, Self) -> Bool
+pub impl Eq for Compaction
+
+pub(all) struct Geometry {
+  width_modules : Int
+  height_rows : Int
+  data_columns : Int
+  data_rows : Int
+  ec_level : Int
+}
+
+pub(all) struct HighLevel {
+  codewords : Array[Int]
+  modes : Array[Compaction]
+  segments : Array[Int]
+}
+
+pub(all) struct Symbol {
+  codewords : Array[Int]
+  columns : Int
+  rows : Int
+  ec_level : Int
+  data_count : Int
+  pad_count : Int
+}
+
+pub(all) enum TextSubmode {
+  Alpha
+  Lower
+  Mixed
+  Punctuation
+}
+pub fn TextSubmode::equal(Self, Self) -> Bool
+pub fn TextSubmode::name(Self) -> String
+pub fn TextSubmode::not_equal(Self, Self) -> Bool
+pub impl Eq for TextSubmode
+
+pub(all) struct VerifiedSymbol {
+  symbol : Symbol
+  corrected : Int
+  positions : Array[Int]
+}
 
 // Type aliases
 

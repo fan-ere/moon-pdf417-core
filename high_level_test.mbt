@@ -46,8 +46,8 @@ test "a single non-text byte uses the 913 shift" {
   // character, which here happens because a 13 digit run follows and cuts the
   // binary run short.
   let input : Array[Int] = [
-    65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 200, 49, 50, 51, 52, 53, 54, 55, 56, 57, 48, 49,
-    50, 51, 88, 89, 90,
+    65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 200, 49, 50, 51, 52, 53, 54, 55, 56,
+    57, 48, 49, 50, 51, 88, 89, 90,
   ]
   let result = @moon-pdf417-core.encode_high_level(input)
   let mut shifts = 0
@@ -105,15 +105,8 @@ test "high level encoding rejects empty and out of range input" {
 ///|
 test "high level encoding round trips" {
   let samples : Array[String] = [
-    "HELLO WORLD",
-    "Hello World 1234",
-    "1234567890",
-    "1234567890123",
-    "ABC1234567890123DEF",
-    "PDF417 TEST",
-    "a",
-    "A",
-    "MixedCase And Punctuation!",
+    "HELLO WORLD", "Hello World 1234", "1234567890", "1234567890123", "ABC1234567890123DEF",
+    "PDF417 TEST", "a", "A", "MixedCase And Punctuation!",
   ]
   for sample in samples {
     let codes = high_test_codes(sample)
@@ -127,17 +120,12 @@ test "high level encoding round trips" {
 
 ///|
 test "explicit compaction entry points emit their latches" {
-  assert_eq(
-    @moon-pdf417-core.encode_numeric_only(high_test_codes("1234")),
-    [902, 12, 434],
-  )
-  assert_eq(
-    @moon-pdf417-core.encode_bytes_only([1, 2, 3]),
-    [901, 3, 1, 2, 3],
-  )
-  assert_eq(
-    @moon-pdf417-core.encode_bytes_only([1, 2, 3, 4, 5, 6]),
-    [924, 1, 620, 89, 74, 846],
-  )
+  assert_eq(@moon-pdf417-core.encode_numeric_only(high_test_codes("1234")), [
+    902, 12, 434,
+  ])
+  assert_eq(@moon-pdf417-core.encode_bytes_only([1, 2, 3]), [901, 3, 1, 2, 3])
+  assert_eq(@moon-pdf417-core.encode_bytes_only([1, 2, 3, 4, 5, 6]), [
+    924, 1, 620, 89, 74, 846,
+  ])
   assert_eq(@moon-pdf417-core.encode_text_only(high_test_codes("AB")), [1])
 }
