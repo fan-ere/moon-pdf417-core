@@ -81,44 +81,47 @@ pub fn consecutive_digits(input : Array[Int], start : Int) -> Int {
 }
 
 ///|
-/// Number of consecutive characters that Text Compaction can carry, stopping
-/// when a run of 13 or more digits begins.
+/// Number of consecutive characters that Text Compaction can carry starting
+/// at `start`.  The run stops before a sequence of 13 or more digits, which
+/// is the point where Numeric Compaction becomes worth a mode latch; a run
+/// that begins on such a digit sequence is therefore empty.
 pub fn consecutive_text(input : Array[Int], start : Int) -> Int {
   let length = input.length()
   let mut index = start
-  while index < length {
+  let mut running = true
+  while running && index < length {
     let mut numeric = 0
     while numeric < 13 && index < length && is_digit(input[index]) {
       numeric += 1
       index += 1
     }
     if numeric >= 13 {
-      return index - start - numeric
+      return index - numeric - start
     }
-    if numeric > 0 {
-      continue
+    if numeric == 0 {
+      if is_text_byte(input[index]) {
+        index += 1
+      } else {
+        running = false
+      }
     }
-    if !is_text_byte(input[index]) {
-      break
-    }
-    index += 1
   }
   index - start
 }
 
 ///|
 /// Number of consecutive characters that should go through byte compaction
-/// starting at `start`, following annex P: at most 13 digits may be absorbed
-/// before the run is cut so the numeric mode can take over.
+/// starting at `start`, following annex P: the run stops before a sequence of
+/// 13 or more digits so that Numeric Compaction can take over.  A run that
+/// begins on such a digit sequence is therefore empty.
 pub fn consecutive_binary(input : Array[Int], start : Int) -> Int {
   let length = input.length()
   let mut index = start
   while index < length {
     let mut numeric = 0
-    let mut cursor = index
-    while numeric < 13 && cursor < length && is_digit(input[cursor]) {
+    while numeric < 13 && index + numeric < length &&
+      is_digit(input[index + numeric]) {
       numeric += 1
-      cursor += 1
     }
     if numeric >= 13 {
       return index - start
@@ -129,9 +132,11 @@ pub fn consecutive_binary(input : Array[Int], start : Int) -> Int {
 }
 
 ///|
-/// Emit a byte run, choosing the 913 shift for a single byte inside text
-/// mode, the 924 latch for multiples of six bytes and the 901 latch
-/// otherwise.  The 901 latch is followed by an explicit byte count.
+/// Emit a byte run, choosing the 913 shift for a single byte while the symbol
+/// is still in text mode, the 924 latch for multiples of six bytes and the
+/// 901 latch otherwise.  Returns `true` when the 913 shift was used, which
+/// keeps the symbol in text mode.  The 901 latch is followed by an explicit
+/// byte count.
 fn push_byte_run(
   builder : HighLevelBuilder,
   input : Array[Int],
@@ -139,14 +144,14 @@ fn push_byte_run(
   count : Int,
   in_text_mode : Bool,
   segment : Int,
-) -> Unit {
+) -> Bool {
   if count <= 0 {
-    return
+    return in_text_mode
   }
   if count == 1 && in_text_mode {
     builder.push_word(shift_byte, segment)
     builder.push_word(input[start], segment)
-    return
+    return true
   }
   if is_byte_group_multiple(count) {
     builder.push_word(latch_byte, segment)
@@ -159,10 +164,13 @@ fn push_byte_run(
       builder.push_word(count % 900, segment)
     }
   }
-  let body = encode_byte_segment(input, start, count) catch {
+  let body = try encode_byte_segment(input, start, count) catch {
     _ => []
+  } noraise {
+    words => words
   }
   builder.push_words(body, segment)
+  false
 }
 
 ///|
@@ -190,8 +198,10 @@ pub fn encode_high_level(input : Array[Int]) -> HighLevel raise EncodeError {
       let segment = builder.modes.length()
       builder.modes.push(Numeric)
       builder.push_word(latch_numeric, segment)
-      let body = encode_numeric_segment(input, position, digits) catch {
+      let body = try encode_numeric_segment(input, position, digits) catch {
         _ => []
+      } noraise {
+        words => words
       }
       builder.push_words(body, segment)
       in_text_mode = false
@@ -200,7 +210,12 @@ pub fn encode_high_level(input : Array[Int]) -> HighLevel raise EncodeError {
       continue
     }
     let text_run = consecutive_text(input, position)
-    if text_run >= 5 || digits == length - position {
+    // Text Compaction wins when the run is long enough (annex P: `t >= 5`),
+    // or when the rest of the input is digit free (`n == len - p`).  A run of
+    // length zero must never be selected, otherwise the walk cannot advance.
+    let take_text = text_run >= 5 ||
+      (digits == 0 && text_run == length - position && text_run > 0)
+    if take_text {
       let target = if in_text_mode && !builder.modes.is_empty() {
         builder.current_segment()
       } else {
@@ -211,14 +226,12 @@ pub fn encode_high_level(input : Array[Int]) -> HighLevel raise EncodeError {
         }
         index
       }
-      let (words, next_submode) = encode_text_segment(
-        input,
-        position,
-        text_run,
-        submode,
-      ) catch {
+      let encoded = try encode_text_segment(input, position, text_run, submode) catch {
         _ => ([], Alpha)
+      } noraise {
+        value => value
       }
+      let (words, next_submode) = encoded
       builder.push_words(words, target)
       submode = next_submode
       in_text_mode = true
@@ -231,8 +244,14 @@ pub fn encode_high_level(input : Array[Int]) -> HighLevel raise EncodeError {
     }
     let segment = builder.modes.length()
     builder.modes.push(Byte)
-    push_byte_run(builder, input, position, binary_run, in_text_mode, segment)
-    in_text_mode = false
+    in_text_mode = push_byte_run(
+      builder,
+      input,
+      position,
+      binary_run,
+      in_text_mode,
+      segment,
+    )
     submode = Alpha
     position += binary_run
   }
@@ -266,7 +285,7 @@ pub fn encode_bytes_only(input : Array[Int]) -> Array[Int] raise EncodeError {
   }
   let builder = HighLevelBuilder::new()
   builder.modes.push(Byte)
-  push_byte_run(builder, input, 0, input.length(), false, 0)
+  let _ = push_byte_run(builder, input, 0, input.length(), false, 0)
   builder.codewords
 }
 
