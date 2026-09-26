@@ -1,9 +1,5 @@
 # Moon PDF417 Core
 
-[![CI](https://github.com/fan-ere/moon-pdf417-core/actions/workflows/ci.yml/badge.svg)](https://github.com/fan-ere/moon-pdf417-core/actions/workflows/ci.yml)
-
-Repository: <https://github.com/fan-ere/moon-pdf417-core>
-
 A dependency-free MoonBit library for the **codeword layer** of PDF417: the
 part between "the user has a message" and "a renderer has codewords".
 
@@ -91,20 +87,19 @@ every target; the examples above use `native` because it needs no runtime.
   symbol are located with Berlekamp-Massey and repaired, and erasures double
   the repair budget.
 * The suite then covers the three compactions, the mode selector, the decoder,
-  the parity block, the layout rules and the row indicator formulas; run
-  `moon test --deny-warn --target wasm` to see the exact count.
+  the parity block, the layout rules and the row indicator formulas.
 
-The tests do not prove that a third party decoder reads our symbols, and CI
-being green is not proof that a scanner works: the bar/space patterns are out
-of scope here. See [docs/SOURCES.md](docs/SOURCES.md) for what was compared
-against which reference.
+The tests show that the encoder and decoder agree with the reference vectors
+above; they do not prove that a third party decoder or a scanner reads these
+symbols, because the bar/space patterns are out of scope here. See
+[docs/SOURCES.md](docs/SOURCES.md) for what was compared against which
+reference.
 
 ## Documentation
 
-* [申报书.md](申报书.md) — one page project proposal for the contest.
-* [docs/PARTICIPATION.md](docs/PARTICIPATION.md) — applicant and repository ownership.
+* [申报书.md](申报书.md) — one page project proposal.
 * [docs/SOURCES.md](docs/SOURCES.md) — specifications, references and licenses.
-* [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) — development log and design decisions.
+* [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) — development log.
 * [docs/OSC2026_SELF_REVIEW.md](docs/OSC2026_SELF_REVIEW.md) — local self review.
 * [AGENTS.md](AGENTS.md) — conventions for agents and contributors.
 
