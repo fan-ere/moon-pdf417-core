@@ -5,7 +5,8 @@
 - Contact: 13383292052
 - GitHub account and repository owner: `fan-ere`
 - Repository: <https://github.com/fan-ere/moon-pdf417-core>
-- mooncakes namespace: `fan-ere/moon-pdf417-core` (not published yet)
+- mooncakes package: `fan-ere/moon-pdf417-core@0.1.0`, published and building
+  successfully — <https://mooncakes.io/docs/fan-ere/moon-pdf417-core>
 
 The applicant is the repository owner and the sole contributor recorded in the
 current Git history. There is no second repository, mirror or upstream project
