@@ -44,14 +44,33 @@ units in `0..255`. `utf8_bytes` converts a MoonBit string to UTF-8 byte values
 for callers that want non-Latin-1 payloads; pass the result to byte compaction
 or to the automatic selector.
 
-## Install and reproduce
+## Install
 
-Install the [MoonBit toolchain](https://www.moonbitlang.com/download/) and make
-sure `moon version --all` works. Then, from the repository root:
+The library has no dependencies; add it to a module with:
+
+```sh
+moon add fan-ere/moon-pdf417-core
+```
+
+Then import the package from a `moon.pkg`:
+
+```
+import {
+  "fan-ere/moon-pdf417-core" @pdf417,
+}
+```
+
+To work on the library itself, install the
+[MoonBit toolchain](https://www.moonbitlang.com/download/), confirm that
+`moon version --all` works, and build from a checkout of this repository.
+
+## Reproduce
+
+From the repository root:
 
 ```sh
 moon check --deny-warn --target all
-moon build --target wasm
+moon build --target all
 moon test --deny-warn --target wasm
 moon test --deny-warn --target wasm-gc
 moon test --deny-warn --target js
@@ -95,13 +114,22 @@ symbols, because the bar/space patterns are out of scope here. See
 [docs/SOURCES.md](docs/SOURCES.md) for what was compared against which
 reference.
 
+## Continuous integration
+
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs on every push and
+pull request:
+
+| Job | What it covers |
+| --- | --- |
+| `lint` | `moon fmt` and `moon info` leave no diff |
+| `test` (matrix) | `moon check --deny-warn`, `moon build`, `moon test --deny-warn` on wasm, wasm-gc, js and native |
+| `cli` | runs `examples/quickstart` and the four `cmd/main` commands |
+
 ## Documentation
 
-* [申报书.md](申报书.md) — one page project proposal.
 * [docs/SOURCES.md](docs/SOURCES.md) — specifications, references and licenses.
 * [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) — development log.
-* [docs/OSC2026_SELF_REVIEW.md](docs/OSC2026_SELF_REVIEW.md) — local self review.
-* [AGENTS.md](AGENTS.md) — conventions for agents and contributors.
+* [docs/AGENTS.md](docs/AGENTS.md) — conventions for agents and contributors.
 
 ## License
 
