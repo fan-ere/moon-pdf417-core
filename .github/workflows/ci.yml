@@ -71,3 +71,21 @@ jobs:
           moon run cmd/main --target native -- inspect --data "HELLO WORLD"
           moon run cmd/main --target native -- capacity --level 2
           moon run cmd/main --target native -- structure --columns 4 --rows 6 --level 2
+      - name: Render smoke test
+        run: |
+          moon run cmd/main --target native -- render --data "HELLO 1234" --format ascii --scale 1 > symbol.txt
+          moon run cmd/main --target native -- render --data "HELLO 1234" --format svg > symbol.svg
+          test -s symbol.txt
+          test -s symbol.svg
+          head -c 5 symbol.svg | grep -q '<?xml'
+
+  tables:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - name: Generated tables match the committed files
+        run: |
+          python3 scripts/gen_pattern_tables.py --check
+          python3 scripts/gen_text_tables.py --check
