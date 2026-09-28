@@ -59,7 +59,7 @@ The library has no dependencies; add it to a module with:
 moon add fan-ere/moon-pdf417-core
 ```
 
-The current release is `0.2.0`, published at
+The current release is `0.2.1`, published at
 <https://mooncakes.io/docs/fan-ere/moon-pdf417-core>.
 
 Then import the package from a `moon.pkg`:
@@ -87,9 +87,10 @@ moon test --deny-warn --target js
 moon run examples/quickstart --target wasm
 ```
 
-`examples/quickstart` prints the data codewords, the padded and parity-corrected
-codeword sequence and the verification result, so a successful run is the
-shortest reproducibility check.
+`examples/quickstart` walks the whole pipeline: it encodes a message, lays out
+the symbol, prints the data codewords and the verification result, checks the
+module matrix and draws it as ASCII plus an SVG summary. A successful run is
+the shortest reproducibility check.
 
 ## Command line
 
@@ -118,12 +119,18 @@ every target; the examples above use `native` because it needs no runtime.
   symbol are located with Berlekamp-Massey and repaired, and erasures double
   the repair budget.
 * The suite then covers the three compactions, the mode selector, the decoder,
-  the parity block, the layout rules and the row indicator formulas.
+  the parity block, the layout rules, the row indicator formulas and the module
+  matrix.
+* The symbol character table is checked by property, not by spot values: all
+  2787 entries cover 17 modules with eight alternating elements of 1..6
+  modules, and every pattern is unique inside and across clusters.
+  `scripts/audit_pattern_tables.py --reference` compares the storage form with
+  the reference table entry by entry and reports them identical.
 
-The tests show that the encoder and decoder agree with the reference vectors
-above; they do not prove that a third party decoder or a scanner reads these
-symbols, because the bar/space patterns are out of scope here. See
-[docs/SOURCES.md](docs/SOURCES.md) for what was compared against which
+The tests show that the encoder, decoder and module matrix agree with the
+reference vectors above. They do not prove that a scanner reads these symbols:
+this project has no image decoder, so the read-back direction is out of scope.
+See [docs/SOURCES.md](docs/SOURCES.md) for what was compared against which
 reference.
 
 ## Continuous integration
@@ -135,7 +142,8 @@ pull request:
 | --- | --- |
 | `lint` | `moon fmt` and `moon info` leave no diff |
 | `test` (matrix) | `moon check --deny-warn`, `moon build`, `moon test --deny-warn` on wasm, wasm-gc, js and native |
-| `cli` | runs `examples/quickstart` and the four `cmd/main` commands |
+| `cli` | runs `examples/quickstart`, the five `cmd/main` commands and checks the rendered SVG and ASCII output |
+| `tables` | the generated tables match their generators, and the symbol character table matches the reference table |
 
 ## Documentation
 

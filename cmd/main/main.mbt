@@ -27,8 +27,13 @@ fn usage() -> Unit {
   println("  capacity  [--level 0-8]")
   println("  structure --columns 1-30 --rows 3-90 [--level 0-8]")
   println(
-    "  render    --data <text> [--format svg|ascii] [--scale n] [--output path]",
+    "  render    --data <text> [--format svg|ascii] [--scale n] [--quiet n]",
   )
+  println("")
+  println(
+    "The render command writes the document to stdout; redirect it to save a",
+  )
+  println("file, for example: render --data X --format svg > symbol.svg")
   println("")
   println("Options:")
   println("  --data <text>      UTF-8 text payload")
@@ -39,7 +44,6 @@ fn usage() -> Unit {
   println("  --format <name>    render output: svg (default) or ascii")
   println("  --scale <n>        modules per unit, default 4")
   println("  --quiet <n>        quiet zone in modules, default 2")
-  println("  --output <path>    write to a file instead of stdout")
 }
 
 ///|
@@ -55,7 +59,6 @@ struct Options {
   format : String
   scale : Int
   quiet : Int
-  output : String
 }
 
 ///|
@@ -103,7 +106,6 @@ fn parse_arguments(args : Array[String]) -> Options raise CliError {
   let mut format = "svg"
   let mut scale = 4
   let mut quiet = 2
-  let mut output = ""
   let mut index = 1
   while index < args.length() {
     if index + 1 >= args.length() {
@@ -132,8 +134,6 @@ fn parse_arguments(args : Array[String]) -> Options raise CliError {
       scale = parse_int(value)
     } else if flag == "--quiet" {
       quiet = parse_int(value)
-    } else if flag == "--output" {
-      output = value
     } else {
       raise BadArguments
     }
@@ -150,7 +150,6 @@ fn parse_arguments(args : Array[String]) -> Options raise CliError {
     format,
     scale,
     quiet,
-    output,
   }
 }
 
@@ -348,9 +347,6 @@ fn run_render(options : Options) -> Unit {
     @moon-pdf417-core.verify_matrix(matrix, symbol.columns).to_string(),
   )
   eprintln("format: " + (if is_ascii { "ascii" } else { "svg" }))
-  if options.output.length() > 0 {
-    eprintln("output: " + options.output)
-  }
   println(body)
 }
 
