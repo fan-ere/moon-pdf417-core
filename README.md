@@ -59,7 +59,7 @@ The library has no dependencies; add it to a module with:
 moon add fan-ere/moon-pdf417-core
 ```
 
-The current release is `0.1.0`, published at
+The current release is `0.2.0`, published at
 <https://mooncakes.io/docs/fan-ere/moon-pdf417-core>.
 
 Then import the package from a `moon.pkg`:

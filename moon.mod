@@ -3,7 +3,7 @@
 
 name = "fan-ere/moon-pdf417-core"
 
-version = "0.1.0"
+version = "0.2.0"
 
 readme = "README.md"
 
@@ -17,9 +17,11 @@ keywords = [
   "codewords",
   "reed-solomon",
   "encoding",
+  "rendering",
+  "svg",
   "gs1",
 ]
 
 preferred_target = "wasm"
 
-description = "Pure MoonBit PDF417 high level encoding and Reed-Solomon error correction: Text / Byte / Numeric compaction, GF(929) parity, symbol layout planning and codeword inspection."
+description = "Pure MoonBit PDF417 encoder: Text / Byte / Numeric compaction, the annex P mode selector, GF(929) Reed-Solomon parity with error repair, symbol layout, the annex A module patterns and SVG or ASCII rendering."
