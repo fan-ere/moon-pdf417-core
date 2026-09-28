@@ -79,9 +79,9 @@ test "start and stop patterns are structurally valid" {
 ///|
 test "symbol modules follow the standard formula" {
   // 35 modules of start and stop pattern plus 17 modules per data column.
-  assert_eq(@moon-pdf417-core.symbol_modules(1), 52)
-  assert_eq(@moon-pdf417-core.symbol_modules(4), 103)
-  assert_eq(@moon-pdf417-core.symbol_modules(30), 545)
+  assert_eq(@moon-pdf417-core.symbol_modules(1), 86)
+  assert_eq(@moon-pdf417-core.symbol_modules(4), 137)
+  assert_eq(@moon-pdf417-core.symbol_modules(30), 579)
 }
 
 ///|

@@ -32,12 +32,13 @@ pub fn row_codeword_count(columns : Int) -> Int {
 ///|
 /// Total module width of a symbol with `columns` columns.
 ///
-/// Following the geometry used by the reference implementation: the start
-/// pattern (17 modules) and the stop pattern (18 modules) are joined by the
-/// left indicator, `columns` data codewords and the right indicator, so the
-/// width is `35 + 17 * columns`.
+/// One row is the start pattern (17 modules), the left row indicator, one
+/// symbol character per data column, the right row indicator (17 modules each)
+/// and the stop pattern (18 modules):
+///
+///     17 + 17 * (columns + 2) + 18 = 69 + 17 * columns
 pub fn symbol_modules(columns : Int) -> Int {
-  35 + 17 * columns
+  69 + 17 * columns
 }
 
 ///|

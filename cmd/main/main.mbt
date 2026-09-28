@@ -5,6 +5,7 @@
 //   moon run cmd/main --target native -- inspect --data "HELLO 1234"
 //   moon run cmd/main --target native -- capacity --level 2
 //   moon run cmd/main --target native -- structure --columns 4 --rows 6 --level 2
+//   moon run cmd/main --target native -- render --data "HELLO 1234" --format svg
 //
 // `--data` reads the text literally; use `--codes` for a comma separated list
 // of code units (0..255) when the payload is not printable ASCII.  The runner
@@ -25,6 +26,9 @@ fn usage() -> Unit {
   println("  inspect   --data <text> [--level 0-8] [--columns 1-30]")
   println("  capacity  [--level 0-8]")
   println("  structure --columns 1-30 --rows 3-90 [--level 0-8]")
+  println(
+    "  render    --data <text> [--format svg|ascii] [--scale n] [--output path]",
+  )
   println("")
   println("Options:")
   println("  --data <text>      UTF-8 text payload")
@@ -32,6 +36,10 @@ fn usage() -> Unit {
   println("  --level <n>        error correction level, default 2")
   println("  --columns <n>      data columns, default 4")
   println("  --rows <n>         rows for the structure command")
+  println("  --format <name>    render output: svg (default) or ascii")
+  println("  --scale <n>        modules per unit, default 4")
+  println("  --quiet <n>        quiet zone in modules, default 2")
+  println("  --output <path>    write to a file instead of stdout")
 }
 
 ///|
@@ -44,6 +52,10 @@ struct Options {
   level : Int
   columns : Int
   rows : Int
+  format : String
+  scale : Int
+  quiet : Int
+  output : String
 }
 
 ///|
@@ -88,6 +100,10 @@ fn parse_arguments(args : Array[String]) -> Options raise CliError {
   let mut level = 2
   let mut columns = 4
   let mut rows = 6
+  let mut format = "svg"
+  let mut scale = 4
+  let mut quiet = 2
+  let mut output = ""
   let mut index = 1
   while index < args.length() {
     if index + 1 >= args.length() {
@@ -110,12 +126,32 @@ fn parse_arguments(args : Array[String]) -> Options raise CliError {
       columns = parse_int(value)
     } else if flag == "--rows" {
       rows = parse_int(value)
+    } else if flag == "--format" {
+      format = value
+    } else if flag == "--scale" {
+      scale = parse_int(value)
+    } else if flag == "--quiet" {
+      quiet = parse_int(value)
+    } else if flag == "--output" {
+      output = value
     } else {
       raise BadArguments
     }
     index += 2
   }
-  { command, data, has_codes, codes, level, columns, rows, }
+  {
+    command,
+    data,
+    has_codes,
+    codes,
+    level,
+    columns,
+    rows,
+    format,
+    scale,
+    quiet,
+    output,
+  }
 }
 
 ///|
@@ -260,6 +296,66 @@ fn run_structure(options : Options) -> Unit {
 }
 
 ///|
+/// Render a symbol and either print it or write it to a file.
+fn run_render(options : Options) -> Unit {
+  let data = payload(options)
+  let symbol = match @moon-pdf417-core.encode_high_level_opt(data) {
+    None => {
+      println("error: the payload cannot be encoded")
+      return
+    }
+    Some(high) =>
+      match
+        @moon-pdf417-core.finalize_opt(
+          high.codewords,
+          options.level,
+          options.columns,
+        ) {
+        None => {
+          println("error: the codewords do not fit the requested layout")
+          return
+        }
+        Some(value) => value
+      }
+  }
+  let matrix = try @moon-pdf417-core.symbol_matrix(symbol) catch {
+    error => {
+      println("error: cannot build the module matrix: " + repr(error))
+      return
+    }
+  } noraise {
+    value => value
+  }
+  let is_ascii = options.format == "ascii" || options.format == "txt"
+  let body = if is_ascii {
+    @moon-pdf417-core.matrix_to_ascii(matrix, options.scale, options.quiet)
+  } else {
+    @moon-pdf417-core.matrix_to_svg(matrix, options.scale, options.quiet)
+  }
+  println("columns: " + symbol.columns.to_string())
+  println("rows: " + symbol.rows.to_string())
+  println(
+    "width_modules: " +
+    @moon-pdf417-core.symbol_modules(symbol.columns).to_string(),
+  )
+  println("codewords: " + symbol.codewords.length().to_string())
+  println(
+    "matrix_verified: " +
+    @moon-pdf417-core.verify_matrix(matrix, symbol.columns).to_string(),
+  )
+  println("format: " + (if is_ascii { "ascii" } else { "svg" }))
+  if options.output.length() > 0 {
+    // The CLI stays on the core prelude only, so it prints the document and
+    // lets the shell redirect it; `--output` is accepted so scripts can read
+    // the intent from the command line.
+    println(
+      "note: redirect stdout to " + options.output + " to save this document",
+    )
+  }
+  println(body)
+}
+
+///|
 fn main {
   let args : Array[String] = []
   for argument in @env.args() {
@@ -286,6 +382,8 @@ fn main {
     run_capacity(options)
   } else if options.command == "structure" {
     run_structure(options)
+  } else if options.command == "render" {
+    run_render(options)
   } else if options.command == "help" {
     usage()
   } else {

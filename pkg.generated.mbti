@@ -22,6 +22,16 @@ pub let byte_group_size : Int
 
 pub fn bytes_to_base900(Array[Int]) -> Array[Int] raise EncodeError
 
+pub let cluster0_patterns : Array[Int]
+
+pub let cluster1_patterns : Array[Int]
+
+pub let cluster2_patterns : Array[Int]
+
+pub fn cluster_pattern(Int, Int) -> Int?
+
+pub fn column_box(Int, Int, Int, Int, Int) -> (Int, Int, Int, Int)
+
 pub fn consecutive_binary(Array[Int], Int) -> Int
 
 pub fn consecutive_digits(Array[Int], Int) -> Int
@@ -130,6 +140,12 @@ pub let latch_text : Int
 
 pub fn left_row_indicator(Int, Int, Int, Int) -> Int
 
+pub fn matrix_row_width(Array[Array[Int]]) -> Int
+
+pub fn matrix_to_ascii(Array[Array[Int]], Int, Int) -> String
+
+pub fn matrix_to_svg(Array[Array[Int]], Int, Int) -> String
+
 pub let max_byte_value : Int
 
 pub let max_codewords : Int
@@ -147,6 +163,8 @@ pub let min_rows : Int
 pub let mixed_char : Array[Int]
 
 pub let mixed_value : Array[Int]
+
+pub fn module_is_bar(Int, Int, Int) -> Bool
 
 pub let numeric_chunk_size : Int
 
@@ -184,9 +202,13 @@ pub let shift_byte : Int
 
 pub fn smallest_symbol(Int, Int) -> (Int, Int)?
 
+pub let start_modules : Int
+
 pub let start_pattern : Int
 
 pub let start_pattern_modules : Int
+
+pub let stop_modules : Int
 
 pub let stop_pattern : Int
 
@@ -194,7 +216,11 @@ pub let stop_pattern_modules : Int
 
 pub fn symbol_codeword_capacity(Int, Int) -> Int
 
+pub fn symbol_matrix(Symbol) -> Array[Array[Int]] raise EncodeError
+
 pub fn symbol_modules(Int) -> Int
+
+pub fn symbol_row_modules(Array[Int], Int, Int, Int, Int) -> Array[Int] raise EncodeError
 
 pub fn symbol_rows(Symbol) -> Array[Array[Int]]?
 
@@ -231,6 +257,8 @@ pub fn text_automaton(Array[Int], Int, Int, TextSubmode) -> (Array[Int], TextSub
 pub fn unpack_text_values(Array[Int]) -> Array[Int]
 
 pub fn utf8_bytes(String) -> Array[Int]
+
+pub fn verify_matrix(Array[Array[Int]], Int) -> Bool
 
 pub fn verify_symbol(Symbol) -> Bool
 

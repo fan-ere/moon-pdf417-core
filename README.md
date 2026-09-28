@@ -30,20 +30,26 @@ let symbol = @pdf417.finalize(high.codewords, 2, 4)  // + descriptor, pad, parit
 | Layout | `finalize`, `rows_for`, `pad_codewords`, `plan_columns` |
 | Planning queries | `data_capacity`, `recommended_level`, `smallest_symbol`, `geometry_of`, `symbol_modules` |
 | Structure | `start_pattern`, `stop_pattern`, `left_row_indicator`, `right_row_indicator`, `symbol_rows` |
-| Verification | `verify_symbol`, `is_error_free`, `round_trip_matches`, `decode_high_level` |
+| Low level | `cluster_pattern`, `symbol_row_modules`, `symbol_matrix`, `verify_matrix`, `column_box`, `module_is_bar` |
+| Rendering | `matrix_to_ascii`, `matrix_to_svg` |
+| Verification | `verify_symbol`, `verify_matrix`, `is_error_free`, `round_trip_matches`, `decode_high_level` |
 
 ### Scope
 
-This is a **codeword layer** library. It does **not** contain the ISO/IEC
-15438 annex A table of 928 bar/space patterns per cluster, so it does not draw
-a scannable symbol by itself. A renderer supplies the pattern data and uses
-`symbol_rows`, `symbol_modules` and the start/stop patterns from here to place
-the codewords.
+This is a **codeword layer** library with the low level structure on top of it.
+It carries the ISO/IEC 15438 annex A symbol character tables (929 patterns per
+bar-space cluster) and turns codewords into modules, so `symbol_matrix` gives
+you one row of modules per symbol row and `matrix_to_svg` writes a black and
+white document. Every bar or space is drawn as a rectangle, so the output is a
+legible symbol rather than a rounded or scaled picture.
 
-It also does **not** implement ECI, so input is interpreted as an array of code
-units in `0..255`. `utf8_bytes` converts a MoonBit string to UTF-8 byte values
-for callers that want non-Latin-1 payloads; pass the result to byte compaction
-or to the automatic selector.
+What is still out of scope:
+
+* a decoder that reads a picture back into codewords, so a scanner cannot be
+  round tripped here;
+* ECI, so input is an array of code units in `0..255`. `utf8_bytes` converts a
+  MoonBit string to UTF-8 byte values for callers that want non-Latin-1
+  payloads.
 
 ## Install
 
@@ -92,6 +98,8 @@ moon run cmd/main --target native -- encode --data "HELLO WORLD 1234567890123" -
 moon run cmd/main --target native -- inspect --data "HELLO WORLD"
 moon run cmd/main --target native -- capacity --level 2
 moon run cmd/main --target native -- structure --columns 4 --rows 6 --level 2
+moon run cmd/main --target native -- render --data "HELLO 1234" --format svg > symbol.svg
+moon run cmd/main --target native -- render --data "HELLO 1234" --format ascii --scale 1
 ```
 
 `--codes 72,69,76,76,79` feeds raw code units instead of text. The CLI works on

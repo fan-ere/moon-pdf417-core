@@ -39,8 +39,22 @@ test fixtures from another barcode library.
   register-length heuristic of the reference encoder, and it re-checks all
   syndromes after a repair rather than trusting the solve.
 - The symbol structure layer expresses the geometry as computation
-  (`symbol_modules`, `left_row_indicator`, `right_row_indicator`) instead of
-  embedding data tables.
+  (`symbol_modules`, `left_row_indicator`, `right_row_indicator`). Its start and
+  stop patterns and the annex A symbol character tables were checked against
+  the reference values, including the structural rules the standard imposes
+  (17 modules per character, every bar or space 1..6 modules wide, alternating
+  and starting with a bar), which `scripts/gen_pattern_tables.py` re-runs with
+  `--check`.
+
+## Symbol character tables
+
+`patterns.mbt` is the ISO/IEC 15438 annex A symbol character table: 929
+characters per bar-space cluster, stored as 17 bit integers. It is specification
+data rather than program logic, and it was normalised and verified by
+`scripts/gen_pattern_tables.py`, which refuses to emit a table unless every one
+of the 2787 entries satisfies the structural rules above and the start and stop
+patterns decode to their documented widths. The reference implementation was
+used to read the table values; the verification above is this project's own.
 
 ## Test data
 
