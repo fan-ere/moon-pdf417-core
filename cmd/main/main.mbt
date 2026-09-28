@@ -296,12 +296,16 @@ fn run_structure(options : Options) -> Unit {
 }
 
 ///|
-/// Render a symbol and either print it or write it to a file.
+/// Render a symbol.
+///
+/// The document goes to stdout and every diagnostic goes to stderr, so
+/// `-- render --format svg > symbol.svg` produces a file a browser can open
+/// without any cleanup.
 fn run_render(options : Options) -> Unit {
   let data = payload(options)
   let symbol = match @moon-pdf417-core.encode_high_level_opt(data) {
     None => {
-      println("error: the payload cannot be encoded")
+      eprintln("error: the payload cannot be encoded")
       return
     }
     Some(high) =>
@@ -312,7 +316,7 @@ fn run_render(options : Options) -> Unit {
           options.columns,
         ) {
         None => {
-          println("error: the codewords do not fit the requested layout")
+          eprintln("error: the codewords do not fit the requested layout")
           return
         }
         Some(value) => value
@@ -320,7 +324,7 @@ fn run_render(options : Options) -> Unit {
   }
   let matrix = try @moon-pdf417-core.symbol_matrix(symbol) catch {
     error => {
-      println("error: cannot build the module matrix: " + repr(error))
+      eprintln("error: cannot build the module matrix: " + repr(error))
       return
     }
   } noraise {
@@ -332,25 +336,20 @@ fn run_render(options : Options) -> Unit {
   } else {
     @moon-pdf417-core.matrix_to_svg(matrix, options.scale, options.quiet)
   }
-  println("columns: " + symbol.columns.to_string())
-  println("rows: " + symbol.rows.to_string())
-  println(
+  eprintln("columns: " + symbol.columns.to_string())
+  eprintln("rows: " + symbol.rows.to_string())
+  eprintln(
     "width_modules: " +
     @moon-pdf417-core.symbol_modules(symbol.columns).to_string(),
   )
-  println("codewords: " + symbol.codewords.length().to_string())
-  println(
+  eprintln("codewords: " + symbol.codewords.length().to_string())
+  eprintln(
     "matrix_verified: " +
     @moon-pdf417-core.verify_matrix(matrix, symbol.columns).to_string(),
   )
-  println("format: " + (if is_ascii { "ascii" } else { "svg" }))
+  eprintln("format: " + (if is_ascii { "ascii" } else { "svg" }))
   if options.output.length() > 0 {
-    // The CLI stays on the core prelude only, so it prints the document and
-    // lets the shell redirect it; `--output` is accepted so scripts can read
-    // the intent from the command line.
-    println(
-      "note: redirect stdout to " + options.output + " to save this document",
-    )
+    eprintln("output: " + options.output)
   }
   println(body)
 }
