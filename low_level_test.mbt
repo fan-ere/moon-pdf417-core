@@ -42,14 +42,43 @@ test "every cluster holds 929 structurally valid patterns" {
         None => abort("missing pattern")
       }
       let widths = @moon-pdf417-core.pattern_widths(pattern, 17)
+      // A symbol character is eight elements that alternate from a bar.
+      assert_eq(widths.length(), 8)
       let mut total = 0
       for width in widths {
         assert_true(width >= 1 && width <= 6, msg="illegal element width")
         total += width
       }
       assert_eq(total, 17)
+      // The most significant bit is a bar.
+      assert_true(
+        @moon-pdf417-core.module_is_bar(pattern, 17, 0),
+        msg="pattern does not start with a bar",
+      )
     }
   }
+}
+
+///|
+test "every symbol character is unique inside and across clusters" {
+  // 2787 entries: 929 per cluster, no pattern reused.  A collision would mean
+  // two different codewords draw the same thing.
+  let seen : Map[Int, Int] = Map([])
+  let mut duplicates = 0
+  for cluster in 0..<3 {
+    for codeword in 0..<929 {
+      let pattern = match @moon-pdf417-core.cluster_pattern(cluster, codeword) {
+        Some(value) => value
+        None => abort("missing pattern")
+      }
+      match seen.get(pattern) {
+        Some(_) => duplicates += 1
+        None => seen.set(pattern, cluster * 1000 + codeword)
+      }
+    }
+  }
+  assert_eq(duplicates, 0)
+  assert_eq(seen.length(), 2787)
 }
 
 ///|

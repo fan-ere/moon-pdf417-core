@@ -89,3 +89,11 @@ jobs:
         run: |
           python3 scripts/gen_pattern_tables.py --check
           python3 scripts/gen_text_tables.py --check
+      - name: Audit the symbol character table
+        run: python3 scripts/audit_pattern_tables.py
+      - name: Compare with the reference table
+        run: |
+          curl -fsSL --retry 3 \
+            https://raw.githubusercontent.com/zxing/zxing/master/core/src/main/java/com/google/zxing/pdf417/encoder/PDF417.java \
+            -o reference.java
+          python3 scripts/audit_pattern_tables.py --reference reference.java

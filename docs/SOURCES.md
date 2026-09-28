@@ -50,11 +50,26 @@ test fixtures from another barcode library.
 
 `patterns.mbt` is the ISO/IEC 15438 annex A symbol character table: 929
 characters per bar-space cluster, stored as 17 bit integers. It is specification
-data rather than program logic, and it was normalised and verified by
-`scripts/gen_pattern_tables.py`, which refuses to emit a table unless every one
-of the 2787 entries satisfies the structural rules above and the start and stop
-patterns decode to their documented widths. The reference implementation was
-used to read the table values; the verification above is this project's own.
+data rather than program logic.
+
+`scripts/gen_pattern_tables.py` normalises the table and refuses to emit it
+unless every one of the 2787 entries satisfies the structural rules above and
+the start and stop patterns decode to their documented widths.
+`scripts/audit_pattern_tables.py` re-checks the committed file on its own and
+can compare it against a reference copy with `--reference`; run against the
+reference implementation's table it reports the storage forms as identical, so
+no value was altered while normalising.
+
+Two findings worth recording:
+
+* the three clusters are told apart by a *sequence* of adjacent element widths,
+  not by any single element. No element is constant inside a cluster, so a
+  decoder has to compare a pattern; the audit prints the per-element ranges to
+  make that visible. The library never needs to guess a cluster: the row index
+  already says which one applies.
+* the library depends on the tables only through `cluster_pattern`, so a
+  caller that does not render anything never pays attention to them.
+
 
 ## Test data
 
