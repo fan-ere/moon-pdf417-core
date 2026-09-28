@@ -150,8 +150,6 @@ pub let mixed_value : Array[Int]
 
 pub let numeric_chunk_size : Int
 
-pub fn numeric_codewords_for(Int) -> Int
-
 pub let pad_codeword : Int
 
 pub fn pad_codewords(Int, Int, Int, Int) -> Int?
@@ -292,12 +290,6 @@ pub fn TextSubmode::equal(Self, Self) -> Bool
 pub fn TextSubmode::name(Self) -> String
 pub fn TextSubmode::not_equal(Self, Self) -> Bool
 pub impl Eq for TextSubmode
-
-pub(all) struct VerifiedSymbol {
-  symbol : Symbol
-  corrected : Int
-  positions : Array[Int]
-}
 
 // Type aliases
 

@@ -139,3 +139,33 @@ test "smallest symbol picks a legal layout" {
     None => abort("expected a layout")
   }
 }
+
+///|
+test "planned columns respect the requested row window" {
+  match @moon-pdf417-core.plan_columns(20, 8, 4, 4, 3, 10) {
+    Some(layout) => {
+      let (columns, rows) = layout
+      assert_eq(columns, 4)
+      assert_true(rows >= 3 && rows <= 10)
+    }
+    None => abort("expected a layout")
+  }
+  // A window that no row count can satisfy has no answer.
+  assert_true(@moon-pdf417-core.plan_columns(400, 8, 1, 3, 3, 5) is None)
+}
+
+///|
+test "planned columns sit close to the three to one ratio" {
+  match @moon-pdf417-core.plan_columns(20, 8, 1, 30, 3, 90) {
+    Some(layout) => {
+      let (columns, rows) = layout
+      // Reference geometry: (17 * columns + 69) * 0.357 mm wide, rows * 2 mm
+      // tall, aimed at a 3:1 ratio.
+      let width = (17.0 * columns.to_double() + 69.0) * 0.357
+      let height = rows.to_double() * 2.0
+      let ratio = width / height
+      assert_true(ratio > 1.0 && ratio < 6.0, msg="ratio out of range")
+    }
+    None => abort("expected a layout")
+  }
+}

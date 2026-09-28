@@ -117,16 +117,6 @@ pub suberror EncodeError {
 pub extend EncodeError with @debug.Debug::{to_repr}
 
 ///|
-/// A verified symbol: `Symbol` plus the information recovered by decoding
-/// its error correction codewords.
-pub(all) struct VerifiedSymbol {
-  symbol : Symbol
-  corrected : Int
-  /// Number of positions whose value had to be repaired.
-  positions : Array[Int]
-}
-
-///|
 pub let max_codewords : Int = 928
 
 ///|

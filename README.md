@@ -27,8 +27,9 @@ let symbol = @pdf417.finalize(high.codewords, 2, 4)  // + descriptor, pad, parit
 | Byte Compaction | `encode_byte`, `bytes_to_base900`, `base900_to_bytes`, `decode_byte` |
 | Automatic mode selection | `encode_high_level`, `consecutive_digits`, `consecutive_text`, `consecutive_binary` |
 | Error correction | `error_correction`, `generator_polynomial`, `syndromes`, `correct_errors` |
-| Layout | `finalize`, `rows_for`, `pad_codewords`, `plan_columns`, `data_capacity` |
-| Structure | `start_pattern`, `stop_pattern`, `left_row_indicator`, `right_row_indicator`, `symbol_rows`, `symbol_modules` |
+| Layout | `finalize`, `rows_for`, `pad_codewords`, `plan_columns` |
+| Planning queries | `data_capacity`, `recommended_level`, `smallest_symbol`, `geometry_of`, `symbol_modules` |
+| Structure | `start_pattern`, `stop_pattern`, `left_row_indicator`, `right_row_indicator`, `symbol_rows` |
 | Verification | `verify_symbol`, `is_error_free`, `round_trip_matches`, `decode_high_level` |
 
 ### Scope

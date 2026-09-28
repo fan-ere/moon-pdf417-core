@@ -159,19 +159,6 @@ pub fn decode_text(words : Array[Int]) -> Array[Int] raise EncodeError {
 }
 
 ///|
-/// Number of numeric codewords that a `digits` digit chunk occupies, given
-/// the leading 1 prefix the encoder adds.
-pub fn numeric_codewords_for(digits : Int) -> Int {
-  if digits <= 0 {
-    0
-  } else if digits < 900 {
-    1
-  } else {
-    2
-  }
-}
-
-///|
 /// Decode a high level data codeword sequence (without the symbol length
 /// descriptor) back to characters.
 ///
