@@ -21,6 +21,7 @@ where it was read from and what was verified about it.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import pathlib
 import re
 import sys
@@ -31,7 +32,21 @@ CLUSTERS = 3
 START_PATTERN = 0x1FEA8
 STOP_PATTERN = 0x3FA29
 
+# SHA-256 over every committed symbol character, cluster by cluster, most
+# significant byte first.  Structural checks alone accept a table where one
+# entry has been replaced by a different but still legal pattern, so the
+# committed values are pinned here as well.
+TABLE_DIGEST = "529a991324828eb8ddcbb657c706787b072c75d3afcaa877dcf1d0c54460392a"
+
 TABLE_PATH = pathlib.Path(__file__).resolve().parent.parent / "patterns.mbt"
+
+
+def table_digest(clusters: list[list[int]]) -> str:
+    digest = hashlib.sha256()
+    for cluster in clusters:
+        for pattern in cluster:
+            digest.update(pattern.to_bytes(4, "big"))
+    return digest.hexdigest()
 
 
 def run_lengths(pattern: int, width: int = WIDTH) -> list[int]:
@@ -143,15 +158,23 @@ def main() -> int:
             return 1
         text = TABLE_PATH.read_text(encoding="utf-8")
         failures = []
+        committed: list[list[int]] = []
         for cluster in range(CLUSTERS):
             patterns = extract_moonbit_cluster(text, cluster)
             if patterns is None:
                 failures.append(f"cluster {cluster} is missing")
                 continue
+            committed.append(patterns)
             try:
                 verify(patterns)
             except ValueError as error:
                 failures.append(f"cluster {cluster}: {error}")
+        if len(committed) == CLUSTERS:
+            actual = table_digest(committed)
+            if actual != TABLE_DIGEST:
+                failures.append(
+                    f"table digest is {actual}, expected {TABLE_DIGEST}"
+                )
         for failure in failures:
             print(f"error: {failure}", file=sys.stderr)
         if failures:
